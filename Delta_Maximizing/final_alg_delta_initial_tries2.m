@@ -8,8 +8,9 @@ element_location_cell{1} = create_element_matrix(N2,num_elems,[10 12 14 16 28 30
 element_location_cell{2} = create_element_matrix(N2,num_elems,[46 47 48 49 50 51 52 53]);
 element_location_cell{3} = create_element_matrix(N2,num_elems,[10 19 28 29 30]);
 element_location_cell{4} = create_element_matrix(N2,num_elems,[10 18 73 81]);
+element_location_cell{5} = create_element_matrix(N2,num_elems,[55]);
 % for elems_i=1:numel(element_location_cell)
-for elems_i=1:4
+for elems_i=5:5
     for reps_i=1:3
         element_location=element_location_cell{elems_i};
         elems=find(element_location>0);
@@ -29,10 +30,7 @@ for elems_i=1:4
         [X,Y]=meshgrid(1:N1);
         sigma=4;
         z=exp(-0.5/sigma.*((X-N1/2).^2+(Y-N1/2).^2));
-        
         fprintf('Number of camera shots: %d\n',alg_tries*big_it*PR_tries*2);
-        
-        
         %% First try
         for alg_try_i=1:alg_tries
             fprintf("try new initialization %d out of %d\n",alg_try_i,alg_tries);
@@ -40,7 +38,6 @@ for elems_i=1:4
             SLM_patt=sign(SLM_patt).*O_support;
             camera_int = activate_vector_only_FFT(forward_TM,backward_TM,SLM_patt,N1,0,forward_TM_show,N2,elems_c,elems_r);
             delta_ints=zeros(1,PR_tries*2+1);
-            
             %% Loops
             for j=1:big_it
                 fprintf("big itteration %d our of %d\n",j,big_it);

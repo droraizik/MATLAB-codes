@@ -11,9 +11,10 @@ element_location_cell{1} = create_element_matrix(N2,num_elems,[10 12 14 16 28 30
 element_location_cell{2} = create_element_matrix(N2,num_elems,[46 47 48 49 50 51 52 53]);
 element_location_cell{3} = create_element_matrix(N2,num_elems,[10 19 28 29 30]);
 element_location_cell{4} = create_element_matrix(N2,num_elems,[10 18 73 81]);
+element_location_cell{5} = create_element_matrix(N2,num_elems,[55]);
 
 
-for elems_i=1:4
+for elems_i=5
     for kk=1:3
         element_location=element_location_cell{elems_i};
         elems=find(element_location>0);
