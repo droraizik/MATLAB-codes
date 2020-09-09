@@ -1,0 +1,66 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Simulations for finding eigen vectors of transmission matrix
+clc;    close all;      clear;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Init System..
+[forward_TM,backward_TM_abs,backward_TM,N1,N2]=initialize_system_smooth();
+O_support=get_circular_mask(N1,N1,N1/8);            %support for fourier field
+num_elems=30;
+element_location = create_element_matrix(N2,num_elems,[]);
+figure;imagesc(reshape(element_location,N2,N2));
+elems=find(element_location>0);
+num_iter=3;
+PR_tries=3;
+[elems_r,elems_c]=ind2sub([N2 N2],elems);
+forward_TM_show=forward_TM;                         %
+forward_TM=forward_TM(elems,:);                     %
+backward_TM=backward_TM(:,elems);                   %
+backward_TM_abs=backward_TM_abs(:,elems);           %
+
+
+bt_tries=zeros(N1,N1,PR_tries*2+1);
+score_tries=zeros(1,PR_tries*2+1);
+
+%% First try
+bt_F=exp(1i*2*pi*rand(N1,N1)).*O_support;           %SLM pattern
+bt=ifftshift(ifft2(ifftshift(bt_F)));               %pattern on tissue
+bt=reshape(bt,N1^2,1);
+bt=bt/norm(bt);
+%% Loops
+for i=1:num_iter
+    fprintf('Itteration %d\n',i);
+    at=abs((forward_TM*bt)).^2;                     % vector after tissue, only in fluor locations
+    output_vector=backward_TM_abs*at;
+    for j=1:PR_tries
+        fprintf('PR try %d\n',j);
+        bt = GS_PR(output_vector,N1);
+        bt_conj=conj(bt);                               % valid solution to PR
+        bt_tries(:,:,j*2-1)=bt;
+        bt_tries(:,:,j*2)=bt_conj;
+        
+        %% Desicion between conj and orig
+        bt_F=fftshift(fft2(fftshift(bt)));              %use bt on SLM
+        bt_F=sign(bt_F).*O_support;                     %
+        bt=ifftshift(ifft2(ifftshift(bt_F)));           %project bt
+        bt=reshape(bt,N1^2,1);
+        score_tries(j*2-1)=PR_score(backward_TM_abs*abs((forward_TM*bt)).^2);  %intensity in camera, using bt
+        
+        bt_conj_F=fftshift(fft2(fftshift(bt_conj)));
+        bt_conj_F=sign(bt_conj_F).*O_support;
+        bt_conj=ifftshift(ifft2(ifftshift(bt_conj_F)));
+        bt_conj=reshape(bt_conj,N1^2,1);
+        score_tries(j*2)=PR_score(backward_TM_abs*abs((forward_TM*bt_conj)).^2);  %intensity in camera, using bt
+        
+    end
+    disp(score_tries)
+    [max_score,maxind]=max(score_tries);
+    bt=bt_tries(:,:,maxind);
+    bt_tries(:,:,PR_tries*2+1)=bt;
+    score_tries(PR_tries*2+1)=max_score;
+    
+    bt=reshape(bt,N1^2,1);
+    a_show=forward_TM_show*bt;
+    a_show=reshape(a_show,N2,N2);
+    figure;imagesc(abs(a_show));hold on;
+    plot(elems_c,elems_r,'*r');
+end

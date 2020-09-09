@@ -1,0 +1,8 @@
+clc;
+close all;
+clear;
+
+[forward_TM_show,backward_TM_abs_orig,backward_TM_orig,N1,N2]=initialize_system_smooth();
+backward_TM_abs_orig=backward_TM_abs_orig./vecnorm(backward_TM_abs_orig);
+elems=[15,];
+b1=backward_TM_abs_orig(:,elems);

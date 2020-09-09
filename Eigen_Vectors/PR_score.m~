@@ -1,0 +1,6 @@
+function score=PR_score(b_col)
+b_col=b_col(:);
+b_col=b_col/norm(b_col);
+score=mean(b_col.^2)-mean(b_col)^2;
+score=score/(mean(b_col.^2)+1e-6);
+
