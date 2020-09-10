@@ -8,18 +8,6 @@ clear;
 b1=backward_TM_abs_orig(:,10);
 b2=backward_TM_abs_orig(:,20);
 
-b_a=b1+b2;
-b_a_1s=b_a/norm(b_a);
-b_b=b1;
-b_b_1s=b_b/norm(b_b);
-
-var(b_a)
-var(b_a_1s)
-var(b_b)
-var(b_b_1s)
-
-
-
 
 function score=PR_score1(b_col)
 b_col=b_col(:)
